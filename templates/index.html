@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>Greeter Dapp</title>
+   <meta charset="utf-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+   <link rel="stylesheet" href="../static/css/style.css" />
+   <script src="/static/js/gguild.js"></script>
+   <script src="/static/js/metamask-onboarding.bundle.js"></script>
+   <link
+   rel="stylesheet"
+   href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/>
+   <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
+      rel="stylesheet"/>
+   <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.14.1/css/mdb.min.css"
+      rel="stylesheet"/>
+</head>
+
+<body class="is-preload">
+   <section>
+      <h3 class="card-title">
+        Status
+      </h3>
+
+      <div class="row">
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-primary">
+            Network: <span id="network"></span>
+          </p>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-secondary">
+            ChainId: <span id="chainId"></span>
+          </p>
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
+          <p class="info-text alert alert-success">
+            Accounts: <span id="accounts"></span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+   <div class="main" style="text-align: center;">
+      <h3>goddess_name: {{goddess_name}}</h3>
+      <h3>avg_rating: {{avg_rating}}</h3>
+      <h3>profile_link: {{profile_link}}</h3>
+      <h3>goddess_division: {{goddess_division}}</h3>
+
+
+      <form method="post" action="{{url_for('set_goddess')}}">
+         <input type="text" style="width: 90%;" name="goddess_name" placeholder="Write Your goddess_name Here.."></br>
+         <input type="text" style="width: 90%;" name="profile_link" placeholder="Write Your profile_link Here.."></br>
+         <input class="button" type="submit" value="Submit">
+         <br>
+      </form>
+   </div>
+</body>
+
+</html>
