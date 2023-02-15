@@ -10,9 +10,12 @@
 
 <body class="is-preload">
    <div class="main" style="text-align: center;">
-      <h3>rating: {{rating}}</h3>
-      <h3>review: {{review}}</h3>
-      <h3>link: {{review_link}}</h3>
+      <h3>rating: {{gg_review.rating}}</h3>
+      <h3>review: {{gg_review.review}}</h3>
+      <h3>src_addr: {{gg_review.src_addr}}</h3>
+      <h3>dst_addr: {{gg_review.dst_addr}}</h3>
+      <h3>transaction_id: {{gg_review.transaction_id}}</h3>
+      <h3>review_cid: {{gg_review.review_cid}}</h3>
 
 
       <form method="post" action="{{url_for('set_review')}}">

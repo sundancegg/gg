@@ -1,158 +1,73 @@
-# Goddess Guild
+# @version ^0.3.7
+
+# enum wouldnt work in hashmap for some reason, maybe change these to bitwise flags
+ERROR_SUCCESS: constant(uint8) = 1         # Can operate normally
+ERROR_PENDING_REVIEW: constant(uint8) = 2  # Needs to finish a review
+ERROR_BANNED: constant(uint8) = 3          # Not allowed to operate in temple
+ERROR_PENDING_APROVAL: constant(uint8) = 4 # Waiting for approval from temple master
+
+# Basic gg Session Status - 4 way transaction handshake
+SESSION_SYN: constant(uint8) = 1            # Patron sends a request and donation
+SESSION_ACK: constant(uint8) = 2            # Goddess Accepts
+SESSION_DENY: constant(uint8) = 3           # Goddess takes a pass # TODO :: better name
+SESSION_REVIEW: constant(uint8) = 4         # Both reviews have been submited
+SESSION_FIN: constant(uint8) = 5            # All reviews have been submited, closed
+
+# Basic record unit of the temple
+struct t_session:
+    goddess: address # TODO :: maybe have addr here
+    patron: address
+    donation: uint256
+    session_id: uint256
+    status: uint8
+    # TODO :: maybe start / finish dates
+
+# Goddess Guild addr
 GoddessGuild: address
 
-# WalletAddress to ProfileContractAddress
-ProfilesGoddesses: HashMap[address, address]
-ProfilesPatrons: HashMap[address, address]
+# Who has permission to be in this temple
+# WalletAddress to status
+TempleGoddessesM: HashMap[address, uint8]   # Goddesseses are members of one temple, 22 max team size #gridiron
+TemplePatronsM: HashMap[address, uint8]     # Patrons are members of multiple temples
+TempleGoddessesA: DynArray[address, 22]    # TODO:: O
+TemplePatronsA: DynArray[address, 100]      # TODO:: How bad is 2x storage .....
 
-# Reciept to GoddessSession
-Escrow: HashMap[uint256, GoddessSession]
+
+# History of this temple - list of sessions
+BookOfRecords: DynArray[t_session, 256] # TODO:: Obvs fix this
 
 # Temple info
-TempleName: public(String)
-TempleDivision: public(String)
-TempleMaster: public(address)
+TempleName: public(String[100])
+TempleDivision: public(uint256)
+TempleMaster: public(address) # TODO :: cast to GoddessProfile addr
 BaseRate: public(uint256)
-TempleWallet: public(uint256)
+TempleTreasury: uint256
 
-# Payment structure - must equal 1.00
-PercentToGoddess: public(uint256) = .80
-PercentToGG: public(uint256) = .10
-PercentToTM: public(uint256) = .04
-PercentToTemple: public(uint256) = .03
-PercentToVerifier: public(uint256) = .03
+# Payment structure - must equal 100
+PercentToGoddess: constant(uint256) = 80
+PercentToGG: constant(uint256) = 10
+PercentToTempleMaster: constant(uint256) = 4
+PercentToTemple: constant(uint256) = 3
+PercentToVerifier: constant(uint256) = 3
 
 # Division differential adjustment
 # Patron pays to level up. Ie - D3 patron would need +1 for D2 and +2 for D1
 # If patron is at the temple division or above, no adjustment is needed 
-DivisionAdjustmentPlusOne: public(uint256) = .10
-DivisionAdjustmentPlusTwo: public(uint256) = .20
+LevelUpOne: constant(uint256) = 10
+LevelUpTwo: constant(uint256) = 20
 
-# Defining a profile struct
-struct GoddessSession:
-    goddess: address
-    patron: address
-    donation: uint256
-    session_id: uint256
+# TODO:: probs should do this a cleaner way
+DIV_PERCENT: constant(uint256) = 100
 
-# Init all our basic values
-@external
-def __init__(_GoddessGuild: address, _TempleName: String, _TempleDivision: uint256, 
-            _TempleMaster: address, _BaseRate: uint256):
-    # todo:: add aserts
-    self.GoddessGuild = _GoddessGuild
-    self.TempleName = _TempleName
-    self.TempleDivision = _TempleDivision
-    self.BaseRate = _BaseRate
+# Interfaces
+# TODO :: import directly
+interface GoddessProfile:
+    def rating() -> int128: view
 
-# possibly some accting errors
-def complet_session(session_reciept):
-    # assert reviews look good
-    session = Escrow[session_reciept]
-    send(session.goddess, (PercentToTM * session.total_donation))
-    send(GoddessGuild, (PercentToGG * session.total_donation))
-    send(TempleMaster, (PercentToTM * session.total_donation))
-    send(verifier, (PercentToVerifier * session.total_donation))
-    TempleWallet += (PercentToTemple * session.total_donation)
-
-    # delete the session?
-
-
-
-# Patron calls to set up session... Maybe comes from gg account
-@external
-@payable
-def request_goddess(goddess_requested: address, divisionLevelAdjust: uint256,):
-    assert(ProfilesPatrons[msg.sender])
-    assert(ProfilesGoddesses[goddess_requested])
-
-    # Check if patron donation is high enough
-    assert msg.value >= self.BaseRate + (self.BaseRate * divisionLevelAdjust)
+#contract PatronProfile:
+#    def rating() -> int128: view
     
-    # Check the divison of the patron/goddess for rate adjust
 
-    # Hold money in escrow 
-    gs = GoddessSession({
-        goddess: goddess_requested,
-        patron: msg.sender,
-        donation: msg.value})
-
-    Escrow[msg.sender] = gs
-    # Check for submited rating / review
-
-    # Update profiles
-
-    # Release funds if ratings and reviews are over designated amt
-
-    # Emite event if TM needs to investigate
-
-    #
-
-
-    # Check if bidding period has started.
-    assert block.timestamp >= self.auctionStart
-    # Check if bidding period is over.
-    assert block.timestamp < self.auctionEnd
-
-    # Track the refund for the previous high bidder
-    self.pendingReturns[self.highestBidder] += self.highestBid
-    # Track new high bid
-    self.highestBidder = msg.sender
-    self.highestBid = msg.value
-# Defining a profile struct
-struct Profile:
-    avg_rating: int128
-    num_sessions: int128
-    profile_link: String[128]
-
-# Declaring a struct variable
-exampleStruct: MyStruct = MyStruct({value1: 1, value2: 2.0})
-
-# Accessing a value
-exampleStruct.value1 = 1
-
-
-# Set to true at the end, disallows any change
-ended: public(bool)
-
-# Keep track of refunded bids so we can follow the withdraw pattern
-pendingReturns: public(HashMap[address, uint256])
-
-
-
-# Bid on the auction with the value sent
-# together with this transaction.
-# The value will only be refunded if the
-# auction is not won.
-@external
-@payable
-def bid():
-    # Check if bidding period has started.
-    #assert block.timestamp >= self.auctionStart
-    # Check if bidding period is over.
-    #assert block.timestamp < self.auctionEnd
-    # Check if bid is high enough
-    assert msg.value > self.highestBid
-    # Track the refund for the previous high bidder
-    self.pendingReturns[self.highestBidder] += self.highestBid
-    # Track new high bid
-    self.highestBidder = msg.sender
-    self.highestBid = msg.value
-
-# Withdraw a previously refunded bid. The withdraw pattern is
-# used here to avoid a security issue. If refunds were directly
-# sent as part of bid(), a malicious bidding contract could block
-# those refunds and thus block new higher bids from coming in.
-@external
-def withdraw():
-    pending_amount: uint256 = self.pendingReturns[msg.sender]
-    self.pendingReturns[msg.sender] = 0
-    send(msg.sender, pending_amount)
-
-# End the auction and send the highest bid
-# to the beneficiary.
-@external
-def endAuction():
     # It is a good guideline to structure functions that interact
     # with other contracts (i.e. they call functions or send Ether)
     # into three phases:
@@ -166,14 +81,124 @@ def endAuction():
     # contracts, they also have to be considered interaction with
     # external contracts.
 
-    # 1. Conditions
-    # Check if auction endtime has been reached
-    assert block.timestamp >= self.auctionEnd
-    # Check if this function has already been called
-    assert not self.ended
 
-    # 2. Effects
-    self.ended = True
+# Init all our basic values
+@external
+def __init__(_GoddessGuild: address, _TempleName: String[100], _TempleDivision: uint256, 
+            _TempleMaster: address, _BaseRate: uint256):
+    # TODO :: add aserts
+    self.GoddessGuild = _GoddessGuild
+    self.TempleName = _TempleName
+    self.TempleDivision = _TempleDivision
+    self.BaseRate = _BaseRate
 
-    # 3. Interaction
-    send(self.beneficiary, self.highestBid)
+
+# Patron calls to set up session... Maybe comes from gg account
+@external
+@payable
+def patron_request_goddess(goddess_requested: address):
+    assert(self.TemplePatronsM[msg.sender] == ERROR_SUCCESS)
+    assert(self.TempleGoddessesM[goddess_requested] == ERROR_SUCCESS)
+    
+    # TODO :: ((self.BaseRate * divisionLevelAdjust) 
+    # Check the divison of the patron/goddess for rate adjust
+#GoddessProfile(self.TemplePatronsM[msg.sender]).rating()
+
+    # Check if patron donation is high enough
+    assert msg.value >= self.BaseRate
+    
+    # Hold money in escrow - Only payout once both reviews are in 
+    ts: t_session = t_session({
+        goddess: goddess_requested,
+        patron: msg.sender,
+        donation: msg.value,
+        session_id: len(self.BookOfRecords), # TODO: this is probly not right
+        status: SESSION_SYN})
+
+    self.BookOfRecords.append(ts)
+
+
+    # Check for submited rating / review
+
+    # Update profiles
+
+    # Release funds if ratints: t_session and reviews are over designated amt
+
+    # Emite event if TM needs to investigate
+
+    #
+
+    # Check if bidding period has started.
+    #assert block.timestamp >= self.auctionStart
+
+
+# Goddess calls to onfirm a session
+@external
+def goddess_confirm_session(session_id: uint256) -> bool:
+    session: t_session = self.BookOfRecords[session_id]
+    assert(session.goddess == msg.sender)
+    assert(self.TempleGoddessesM[msg.sender] == ERROR_SUCCESS)
+
+    # TODO :: cant figure how to cast return struct from hashmap so this clunky way instead....
+    session.status = SESSION_ACK
+    self.BookOfRecords[session_id] = session
+
+    return True
+
+
+# Goddess calls to deny a session
+@external
+def goddess_deny_session(session_id: uint256) -> bool:
+    session: t_session = self.BookOfRecords[session_id]
+    assert(session.goddess == msg.sender)
+    session.status = SESSION_ACK
+    self.BookOfRecords[session_id] = session
+    
+    return True
+
+
+# possibly some accting errors
+@external
+def session_payout(session_id: uint256):
+    session: t_session = self.BookOfRecords[session_id]
+
+    assert(session.status == SESSION_REVIEW)
+
+    # assert reviews look good
+    send(self.GoddessGuild, (PercentToGG * session.donation) / DIV_PERCENT)
+    send(self.TempleMaster, (PercentToTempleMaster * session.donation) / DIV_PERCENT)
+    send(session.goddess, (PercentToGoddess * session.donation) / DIV_PERCENT)
+    # TODO get verifier:: send(session.verifier, (PercentToVerifier * session.donation) / DIV_PERCENT)
+    self.TempleTreasury += (PercentToTemple * session.donation)  / DIV_PERCENT
+
+    session.status = SESSION_FIN
+    self.BookOfRecords[session_id] = session
+
+
+# TODO :: needs permission of the temple master
+# TODO :: fuix the fkn len access
+@external
+def join_temple_patrons() -> bool:
+    # TODO :: need to fix attck of multiple submits
+    self.TemplePatronsM[msg.sender] = ERROR_PENDING_APROVAL
+    self.TemplePatronsA.append(msg.sender) # TODO : move this to after approval
+
+    return True
+
+
+# TODO :: needs permission of the temple master
+@external
+def join_temple_goddesses() -> bool:
+    self.TempleGoddessesM[msg.sender] = ERROR_PENDING_APROVAL
+    self.TempleGoddessesA.append(msg.sender) # TODO : move this to after approval
+
+    return True
+
+
+@external
+def get_patrons() -> DynArray[address, 100]:
+    return self.TemplePatronsA
+
+@external
+def get_goddesses() -> DynArray[address, 22]:
+    return self.TempleGoddessesA

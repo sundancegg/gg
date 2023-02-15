@@ -1,10 +1,13 @@
 # @version ^0.3.7
 
+from . temple import GGSession
+
 # Goddess Guild
 goddess_name: public(String[200])
-avg_rating: public(int128)
+rating: public(int128)
 profile_link: public(String[100])
 goddess_division: public(int128)
+pending_review_lock: public(String[100]) # must write a review about last session before next
 
 # TODO: This is obvs broken and bad design :(
 review_links: public(DynArray[String[222], 128])
@@ -14,6 +17,11 @@ review_links: public(DynArray[String[222], 128])
 # skill_badges
 
 
+@external
+def get_review_links() -> DynArray[String[222], 128]:
+    return self.review_links
+
+   
 @external
 def update_goddess_name(_goddess_name: String[200]):
     self.goddess_name = _goddess_name

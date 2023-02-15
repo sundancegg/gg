@@ -30,6 +30,16 @@ def load_contract(contract_name):
     return abi, bytecode
 
 
+def read_temple_var(w3, contract_address, contract_func):
+    # Contract instance
+    import pdb;pdb.set_trace()
+    abi, _ = load_contract("temple")
+    contract_instance = w3.eth.contract(abi=abi, address=contract_address)
+    func = getattr(contract_instance.functions, contract_func)
+    contract_value = func().call()
+    return contract_value
+
+
 def read_contract_var(w3, contract_name, contract_func):
     # Contract instance
     abi, _ = load_contract(contract_name)
@@ -62,11 +72,58 @@ def write_contract_var(w3, contract_name, contract_func, contract_params):
     return tx_receipt
 
 
+def deploy_contract(w3, vyper_json, init_vars):
+    # compile your smart contract with vyper first
+    abi = vyper_json['abi']
+    bytecode = vyper_json['bytecode']
+
+    contract= w3.eth.contract(bytecode=bytecode, abi=abi)
+
+    construct_txn = contract.constructor(*init_vars).buildTransaction({
+        'from': acct.address,
+        'nonce': w3.eth.getTransactionCount(acct.address),
+        'gas': 1728712,
+        'gasPrice': w3.toWei('21', 'gwei')})
+
+    signed = acct.signTransaction(construct_txn)
+
+    tx_hash=w3.eth.sendRawTransaction(signed.rawTransaction)
+    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    
+    return tx_receipt['contractAddress']
+
+
+def deploy_goddess_contract(w3, name, profile_link, temple):
+    # compile your smart contract with vyper first
+    vyper_json = json.load(open(f'{build_dir}goddess.json'))
+    init_vars = [name, profile_link, temple]
+
+    tx_receipt = deploy_contract(w3, vyper_json, init_vars)
+    return tx_receipt
+
+
+def deploy_patron_contract(w3, name, profile_link, division, temple):
+    # compile your smart contract with vyper first
+    vyper_json = json.load(open(f'{build_dir}patron.json'))
+    init_vars = [name, profile_link, division, temple]
+
+    tx_receipt = deploy_contract(w3, vyper_json, init_vars)
+    return tx_receipt
+
+
+def deploy_temple_contract(w3, GoddessGuild, TempleName, TempleDivision, BaseRate):
+    # compile your smart contract with vyper first
+    vyper_json = json.load(open(f'{build_dir}patron.json'))
+    init_vars = [GoddessGuild, TempleName, TempleDivision, BaseRate]
+    tx_receipt = deploy_contract(w3, vyper_json, init_vars)
+
+    return tx_receipt
+    
 
 def update_env_file(env_key, env_value):
     for line in fileinput.input(".env", inplace=True):
         if env_key in line:
-            print(f"{env_key}={env_value}", end='')
+            print(f"{env_key}={env_value}")
         else:
             print(line, end='')
 
@@ -116,35 +173,11 @@ if args.compile:
 if args.deploy:
     contract_name = args.deploy
 
-    # compile your smart contract with vyper first
-    vyper_json = json.load(open(f'{build_dir}{contract_name}.json'))
-    abi = vyper_json['abi']
-    bytecode = vyper_json['bytecode']
-
-    contract= w3.eth.contract(bytecode=bytecode, abi=abi)
+    if contract_name == "temple":
+        contractAddress = deploy_temple_contract(w3, "0xggaddr69", "Kaza Doom", 2, 696)
     
-    init_vars = []
-    if contract_name == 'temple':
-        #building transaction init
-        _GoddessGuild = acct.address
-        _TempleName = "Sundance Temple"
-        _TempleDivision = 1
-        _TempleMaster =  acct.address
-        _BaseRate = 2000
-        init_vars = [_GoddessGuild, _TempleName, _TempleDivision, _TempleMaster, _BaseRate]
-
-    construct_txn = contract.constructor(*init_vars).buildTransaction({
-        'from': acct.address,
-        'nonce': w3.eth.getTransactionCount(acct.address),
-        'gas': 1728712,
-        'gasPrice': w3.toWei('21', 'gwei')})
-
-    signed = acct.signTransaction(construct_txn)
-
-    tx_hash=w3.eth.sendRawTransaction(signed.rawTransaction)
-    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
-    update_env_file(f"CONTRACT_ADDRESS_{contract_name.upper()}",tx_receipt['contractAddress'])
-    print(f"Contract Deployed At:\n{tx_receipt['contractAddress']}")
+    update_env_file(f"CONTRACT_ADDRESS_{contract_name.upper()}", contractAddress)
+    print(f"Contract Deployed At:\n{contractAddress}")
 
 
 # READ/WRITE

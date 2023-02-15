@@ -117,7 +117,6 @@
               </div>
             </div>
           </div>
-        </div>
       </section>
 
       <section>
@@ -128,36 +127,31 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  Contract
+                  Write a Review
                 </h4>
 
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="deployButton"
-                  disabled
-                >
-                  Deploy Contract
-                </button>
+                <form action="set-review" method="POST">
+                  <!-- Name input -->
+                  <div class="form-outline mb-4">
+                    <input type="text" name="rating" id="rating" placeholder="rating" class="form-control" />
+                  </div>
+                  <div class="form-outline mb-4">
+                    <textarea class="form-control" name="review" id="review" placeholder="review" rows="4"></textarea>
+                  </div>
+                  <div class="form-outline mb-4">
+                    <input type="text" name="src_addr" id="src_addr" placeholder="src_addr" class="form-control" />
+                  </div>
+                  <div class="form-outline mb-4">
+                    <input type="text" name="dst_addr" id="dst_addr" placeholder="dst_addr" class="form-control" />
+                  </div>
+                  <div class="form-outline mb-4">
+                    <input type="text" name="transaction_id" id="transaction_id" placeholder="transaction_id" class="form-control" />
+                  </div>
+                  <!-- Submit button -->
+                  <button type="submit" class="btn btn-primary btn-block mb-4">Submit</button>
+                </form>
 
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="depositButton"
-                  disabled
-                >
-                  Deposit
-                </button>
 
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="withdrawButton"
-                  disabled
-                >
-                  Withdraw
-                </button>
-
-                <p class="info-text alert alert-secondary">
-                  Contract Status: <span id="contractStatus">Not clicked</span>
-                </p>
               </div>
             </div>
           </div>
@@ -168,37 +162,64 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  Send Eth
+                  Create Patron
                 </h4>
+                
+                <form action="patron" method="POST">
+                  <!-- Name input -->
+                  <div class="form-outline mb-4">
+                    <input type="text" name="name" id="name" placeholder="name" class="form-control" />
+                  </div>
+                  <div class="form-outline mb-4">
+                    <input type="text" name="profile_link" id="profile_link" placeholder="profile_link" class="form-control" />
+                  </div>
+                  <div class="form-outline mb-4">
+                    <input type="text" name="division" id="division" placeholder="division" class="form-control" />
+                  </div>
+                  <div class="form-outline mb-4">
+                    <input type="text" name="temple" id="temple" placeholder="temple" class="form-control" />
+                  </div>
+                  <!-- Submit button -->
+                  <button type="submit" class="btn btn-primary btn-block mb-4">Create Patron</button>
+                </form>
 
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="sendButton"
-                  disabled
-                >
-                  Send
-                </button>
 
-                <hr />
-
-                <h4>
-                  Sign Typed Data
-                </h4>
-
-                <button
-                  class="btn btn-primary btn-lg btn-block mb-3"
-                  id="signTypedData"
-                  disabled
-                >
-                  Sign
-                </button>
-
-                <p class="info-text alert alert-warning">
-                  Sign Typed Data Result: <span id="signTypedDataResult"></span>
-                </p>
+               
               </div>
             </div>
           </div>
+
+          <div
+          class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
+        >
+          <div class="card full-width">
+            <div class="card-body">
+              <h4 class="card-title">
+                Create Goddess
+              </h4>
+              
+              <form action="goddess" method="POST">
+                <!-- Name input -->
+                <div class="form-outline mb-4">
+                  <input type="text" name="name" id="name" placeholder="name" class="form-control" />
+                </div>
+                <div class="form-outline mb-4">
+                  <input type="text" name="profile_link" id="profile_link" placeholder="profile_link" class="form-control" />
+                </div>
+        
+                <div class="form-outline mb-4">
+                  <input type="text" name="temple" id="temple" placeholder="temple" class="form-control" />
+                </div>
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary btn-block mb-4">Create Goddess</button>
+              </form>
+
+       
+
+             
+            </div>
+          </div>
+        </div>
 
           <div
             class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12 d-flex align-items-stretch"
@@ -206,19 +227,51 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  Send Tokens
+                  Temple Info
                 </h4>
 
                 <p class="info-text alert alert-success">
-                  Token: <span id="tokenAddress"></span>
+                  Temple: <span id="templeAddress"></span>
                 </p>
+
+                <div id="get-temple-stats">
+                  <input
+                    class="form-control"
+                    type="text"
+                    placeholder="Temple Address"
+                    id="templeAddressInput"
+                  />
+
+                  <button
+                    class="btn btn-primary btn-lg btn-block mb-3"
+                    id="getTempleStats"
+                  >
+                    Get Temple Stats
+                  </button>
+                </div>
+
+                <p class="info-text alert alert-secondary">
+                  Goddesses: <span id="templeGoddessesDisplay"></span>
+                </p>
+
+                <p class="info-text text-truncate alert alert-secondary">
+                  Patrons: <span id="templePatronsDisplay"></span>
+                </p>
+
+                <p class="info-text alert alert-secondary">
+                  Temple Name: <span id="templeNameDisplay"></span>
+                </p>
+                <p class="info-text alert alert-secondary">
+                  Temple Base Rate: <span id="templeBaseRateDisplay"></span>
+                </p>
+<!-- 
 
                 <button
                   class="btn btn-primary btn-lg btn-block mb-3"
                   id="createToken"
                   disabled
                 >
-                  Create Token
+                  List Temple
                 </button>
 
                 <button
@@ -251,7 +304,8 @@
                   disabled
                 >
                   Approve Tokens Without Gas
-                </button>
+                </button> -->
+
               </div>
             </div>
           </div>
@@ -266,7 +320,7 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  Encrypt / Decrypt
+                  Temple
                 </h4>
 
                 <button
@@ -313,7 +367,10 @@
                 <p class="info-text text-truncate alert alert-secondary">
                   Ciphertext: <span id="ciphertextDisplay"></span>
                 </p>
-
+                <p class="info-text text-truncate alert alert-secondary">
+                  Ciphertext: <span id="signTypedData"></span>
+                </p>
+                
                 <p class="info-text alert alert-secondary">
                   Cleartext: <span id="cleartextDisplay"></span>
                 </p>

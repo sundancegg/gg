@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <title>Review</title>
+   <meta charset="utf-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+   <link rel="stylesheet" href="../static/css/style.css" />
+</head>
+
+
+<body class="is-preload">
+   <div class="main" style="text-align: center;">
+      <h3>name: {{gg_patron.name}}</h3>
+      <h3>rating: {{gg_patron.rating}}</h3>
+      <h3>profile_link: {{gg_patron.profile_link}}</h3>
+      <h3>division: {{gg_patron.division}}</h3>
+      <h3>pending_review_lock: {{gg_patron.pending_review_lock}}</h3>
+      <h3>temples: {{gg_patron.temples}}</h3>
+      <h3>review_links: {{gg_patron.review_links}}</h3>
+
+
+      <form method="post" action="{{url_for('patron', addr=addr)}}">
+         <input type="text" name="name" placeholder="Write Your patron_name Here.."></br>
+         <input type="text" name="rating" placeholder="Write Your rating Here.."></br>
+         <input type="text" name="profile_link" placeholder="Write Your profile_link Here.."></br>
+         <input type="text" name="division" placeholder="Write Your division Here.."></br>
+         <input type="text" name="pending_review_lock" placeholder="Write Your pending_review_lock Here.."></br>
+         <input type="text" name="temples" placeholder="Write Your temples Here.."></br>
+         <input type="text" name="review_links" placeholder="Write Your review_links Here.."></br>
+         <input class="button" type="submit" value="Submit">
+         <br>
+      </form>
+   </div>
+</body>
+
+</html>
