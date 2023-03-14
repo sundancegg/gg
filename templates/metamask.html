@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>E2E Test Dapp</title>
+    <title>Goddess Guild v0.0.1</title>
     <link rel="icon" type="image/svg" href="metamask-fox.svg" />
     <link
       rel="stylesheet"
@@ -23,7 +23,7 @@
       <header>
         <div id="logo-container">
           <h1 id="logo-text" class="text-center">
-            E2E Test Dapp
+            Goddess Guild v0.0.1
           </h1>
 
   
@@ -56,7 +56,7 @@
       </section>
 
       <section>
-        <div class="row d-flex justify-content-center">
+        <div class="row">
           <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
             <div class="card">
               <div class="card-body">
@@ -84,13 +84,7 @@
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <section>
-        <div class="row d-flex justify-content-center">
-          <div class="col-xl-4 col-lg-6 col-md-12 col-sm-12 col-12">
             <div class="card">
               <div class="card-body">
                 <h4 class="card-title">
@@ -115,9 +109,12 @@
                   Permissions result: <span id="permissionsResult"></span>
                 </p>
               </div>
-            </div>
+
           </div>
+        </div>
       </section>
+
+
 
       <section>
         <div class="row">
@@ -168,6 +165,9 @@
                 <form action="patron" method="POST">
                   <!-- Name input -->
                   <div class="form-outline mb-4">
+                    <input type="text" name="owner_wallet_addr" id="owner_wallet_addr" placeholder="owner_wallet_addr" class="form-control" />
+                  </div>
+                  <div class="form-outline mb-4">
                     <input type="text" name="name" id="name" placeholder="name" class="form-control" />
                   </div>
                   <div class="form-outline mb-4">
@@ -200,6 +200,9 @@
               
               <form action="goddess" method="POST">
                 <!-- Name input -->
+                <div class="form-outline mb-4">
+                  <input type="text" name="owner_wallet_addr" id="owner_wallet_addr" placeholder="owner_wallet_addr" class="form-control" />
+                </div>
                 <div class="form-outline mb-4">
                   <input type="text" name="name" id="name" placeholder="name" class="form-control" />
                 </div>
@@ -254,7 +257,7 @@
                   Goddesses: <span id="templeGoddessesDisplay"></span>
                 </p>
 
-                <p class="info-text text-truncate alert alert-secondary">
+                <p class="info-text alert alert-secondary">
                   Patrons: <span id="templePatronsDisplay"></span>
                 </p>
 
@@ -320,7 +323,7 @@
             <div class="card full-width">
               <div class="card-body">
                 <h4 class="card-title">
-                  Temple
+                  Private Session
                 </h4>
 
                 <button
@@ -328,7 +331,7 @@
                   id="getEncryptionKeyButton"
                   disabled
                 >
-                  Get Encryption Key
+                  Request Session
                 </button>
 
                 <hr />
@@ -337,7 +340,7 @@
                   <input
                     class="form-control"
                     type="text"
-                    placeholder="Message to encrypt"
+                    placeholder="0xAddress of Goddess"
                     id="encryptMessageInput"
                   />
 
@@ -346,7 +349,7 @@
                     id="encryptButton"
                     disabled
                   >
-                    Encrypt
+                    Confirm Session
                   </button>
                 </div>
 
@@ -357,23 +360,20 @@
                   id="decryptButton"
                   disabled
                 >
-                  Decrypt
+                  Session Details
                 </button>
 
                 <p class="info-text alert alert-secondary">
-                  Encryption key: <span id="encryptionKeyDisplay"></span>
+                  Donation: <span id="encryptionKeyDisplay"></span>
                 </p>
 
                 <p class="info-text text-truncate alert alert-secondary">
-                  Ciphertext: <span id="ciphertextDisplay"></span>
+                  Datetime: <span id="ciphertextDisplay"></span>
                 </p>
                 <p class="info-text text-truncate alert alert-secondary">
-                  Ciphertext: <span id="signTypedData"></span>
+                  Location: <span id="signTypedData"></span>
                 </p>
                 
-                <p class="info-text alert alert-secondary">
-                  Cleartext: <span id="cleartextDisplay"></span>
-                </p>
               </div>
             </div>
           </div>
