@@ -64,22 +64,7 @@ DIV_PERCENT: constant(uint256) = 100
 interface GoddessProfile:
     def rating() -> int128: view
 
-#contract PatronProfile:
-#    def rating() -> int128: view
-    
 
-    # It is a good guideline to structure functions that interact
-    # with other contracts (i.e. they call functions or send Ether)
-    # into three phases:
-    # 1. checking conditions
-    # 2. performing actions (potentially changing conditions)
-    # 3. interacting with other contracts
-    # If these phases are mixed up, the other contract could call
-    # back into the current contract and modify the state or cause
-    # effects (Ether payout) to be performed multiple times.
-    # If functions called internally include interaction with external
-    # contracts, they also have to be considered interaction with
-    # external contracts.
 
 
 # Init all our basic values
@@ -91,6 +76,7 @@ def __init__(_GoddessGuild: address, _TempleName: String[100], _TempleDivision: 
     self.TempleName = _TempleName
     self.TempleDivision = _TempleDivision
     self.BaseRate = _BaseRate
+    self.TempleMaster = _TempleMaster
 
 
 # Patron calls to set up session... Maybe comes from gg account
@@ -102,7 +88,7 @@ def patron_request_goddess(goddess_requested: address):
     
     # TODO :: ((self.BaseRate * divisionLevelAdjust) 
     # Check the divison of the patron/goddess for rate adjust
-#GoddessProfile(self.TemplePatronsM[msg.sender]).rating()
+    GoddessProfile(self.TemplePatronsM[msg.sender]).rating()
 
     # Check if patron donation is high enough
     assert msg.value >= self.BaseRate

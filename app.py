@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 from web3 import Web3, Account, HTTPProvider
 from flask import Flask, render_template, request, jsonify
 from web3.middleware import geth_poa_middleware
-from interactive import read_contract_var, write_contract_var, deploy_patron_contract, deploy_goddess_contract, read_temple_var
+from interactive import read_contract_var, write_contract_var, \
+    deploy_patron_contract, deploy_goddess_contract, read_temple_var, write_human_var, \
+    read_human_var
 import random
 from eth_account.messages import defunct_hash_message
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, set_access_cookies
@@ -68,7 +70,6 @@ def index():
 #         "pending_review_lock": read_contract_var(w3, "patron", "pending_review_lock"),
 #         "temples": read_contract_var(w3, "patron", "temples"),
 #         "review_links": read_contract_var(w3, "patron", "get_review_links")}
-
 #     return data, 200  
 
 
@@ -85,7 +86,7 @@ def join_temple_patron(temple, patron):
     return temples, 200    
 
 
-@app.route("/temple/<addr>" , methods=['POST'])
+@app.route("/temple/<addr>" , methods=['POST', 'GET'])
 def get_temple(addr):
     data = {
         "name": read_temple_var(w3, addr, "TempleName"), 
@@ -121,18 +122,19 @@ def post_patron():
         "division": request.form.get("division"),
         "profile_link": request.form.get("profile_link"),
         "temples":  [request.form.get("temple")],
-        #"review_links":  request.form.get("review_links")
+        "owner_wallet_addr":  request.form.get("owner_wallet_addr")
     }
 
     # Sanitize inputs
     gg_patron = GGPatron().load(data)
+    try:
+        gg_patron['contract_addr'] = deploy_patron_contract(
+                w3, gg_patron["owner_wallet_addr"], gg_patron['name'], gg_patron['profile_link'], 
+                gg_patron['division'], gg_patron['temples'][0])
 
-    gg_patron['contract_addr'] = deploy_patron_contract(
-            w3, gg_patron['name'], gg_patron['profile_link'], 
-            gg_patron['division'], gg_patron['temples'][0])
-
-    return gg_patron, 200  
-
+        return gg_patron, 200  
+    except ValueError as e:
+        return e.args[0], 500  
 
 @app.route('/secret')
 @jwt_required()
@@ -153,15 +155,20 @@ def post_goddess():
         "name": request.form.get("name"),
         "profile_link": request.form.get("profile_link"),
         "temples":  [request.form.get("temple")],
+        "owner_wallet_addr":  request.form.get("owner_wallet_addr")
     }
 
-    # Sanitize inputs
-    gg_goddess = GGGoddess().load(data)
-    gg_goddess['contract_addr'] = deploy_goddess_contract(
-            w3, gg_goddess['name'], gg_goddess['profile_link'], 
-            gg_goddess['temples'][0])
+    try:
+        gg_goddess = GGGoddess().load(data)
+        gg_goddess['contract_addr'] = deploy_goddess_contract(
+                w3, gg_goddess['owner_wallet_addr'], gg_goddess['name'],
+                gg_goddess['profile_link'], gg_goddess['temples'][0])
 
-    return gg_goddess, 200  
+        return gg_goddess, 200  
+
+    except ValueError as e:
+        return e.args[0], 500         
+
 
 
 # Updates goddess contract
@@ -170,7 +177,7 @@ def get_reviews(user_profile_addr):
     base = os.getenv('WEB3_STORAGE_VIEW_BASE')
 
     # update contracts with link
-    links = read_contract_var(w3, user_profile_addr, "get_review_links")
+    links = read_human_var(w3, user_profile_addr, "get_review_links")
     full_links = [os.getenv('WEB3_STORAGE_VIEW_BASE') + x for x in links]    
     return full_links, 200
 
@@ -178,7 +185,6 @@ def get_reviews(user_profile_addr):
 # Updates goddess contract
 @app.route("/set-review", methods=['POST']) # change this
 def set_review():
-    
     # TODO:: sign the review for security
     data = {
         "rating": request.form.get("rating"),
@@ -192,13 +198,18 @@ def set_review():
     gg_review = GGReview().load(data)
 
     # Store on ipfs
-    review_cid = w3s.post_upload(("test1", json.dumps(gg_review), 'application/json'))
-
-    # update contracts with link
-    write_contract_var(w3, "goddess", "add_review_link", review_cid)    
-
+    # TODO :: fix the "review" file name
+    review_cid = w3s.post_upload(("review", json.dumps(gg_review), 'application/json'))
     gg_review['review_cid'] = os.getenv('WEB3_STORAGE_VIEW_BASE') + review_cid
-    # return render_template("review.html", gg_review=gg_review) 
+
+    # update "author" contract with link
+    write_human_var(w3, gg_review["src_addr"], "add_review_by_self", 
+        [gg_review['rating'], gg_review['review_cid'], gg_review['dst_addr']])
+
+    # update "partner" contract with link
+    #write_human_var(w3, gg_review["dst_addr"], "add_review_partner", 
+        #[gg_review['rating'], gg_review['review_cid']])
+
     return gg_review, 200
 
 

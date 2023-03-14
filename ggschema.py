@@ -35,7 +35,7 @@ class GGGoddess(Schema):
     pending_review_lock = fields.Integer()
     temples = fields.List(fields.String)
     review_links = fields.List(fields.String)
-    contract_addr = fields.Str()
+    owner_wallet_addr = fields.Str()
 
     # TODO:
     # temple_badges
@@ -51,7 +51,7 @@ class GGPatron(Schema):
     pending_review_lock = fields.Integer()
     temples = fields.List(fields.String)
     review_links = fields.List(fields.String)
-    contract_addr = fields.Str()
+    owner_wallet_addr = fields.Str()
 
 
 test_review_patron = {
